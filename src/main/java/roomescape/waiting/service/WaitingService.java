@@ -3,6 +3,7 @@ package roomescape.waiting.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.global.auth.dto.LoginMember;
 import roomescape.global.error.exception.BadRequestException;
@@ -22,7 +23,6 @@ import roomescape.waiting.entity.WaitingWithRank;
 import roomescape.waiting.repository.WaitingRepository;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class WaitingService {
 
@@ -30,8 +30,8 @@ public class WaitingService {
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
     private final ReservationSlotRepository reservationSlotRepository;
-    private final PaymentService paymentService;
 
+    @Transactional
     public WaitingCreateResponse createWaiting(LoginMember loginMember, WaitingCreateRequest request) {
         ReservationSlot reservationSlot = reservationSlotRepository.findByDateAndTimeIdAndThemeId(
                         request.date(), request.timeId(), request.themeId())
@@ -47,7 +47,7 @@ public class WaitingService {
         return WaitingCreateResponse.from(saved, rank);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<WaitingReadResponse> getWaitings() {
         return waitingRepository.findAll()
                 .stream()

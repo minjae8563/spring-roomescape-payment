@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.global.auth.dto.LoginMember;
 import roomescape.global.error.exception.BadRequestException;
@@ -34,7 +35,6 @@ import roomescape.waiting.entity.WaitingWithRank;
 import roomescape.waiting.service.WaitingService;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ReservationService {
 
@@ -75,14 +75,14 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ReservationReadResponse> getAllReservations() {
         return reservationRepository.findAll().stream()
                 .map(ReservationReadResponse::from)
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ReservationReadFilteredResponse> getFilteredReservations(ReservationReadFilteredRequest request) {
         List<Reservation> reservations = reservationRepository.findReservationsInPeriod(
                 request.themeId(), request.memberId(), request.dateFrom(), request.dateTo());
@@ -92,7 +92,7 @@ public class ReservationService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<ReservationByMemberResponse> getReservationsByMember(LoginMember loginMember) {
         Member member = getMemberById(loginMember.id());
 
